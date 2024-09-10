@@ -89,12 +89,12 @@ class AddFriendsFragment :  BottomSheetDialogFragment(),AddUserListAdapter.Liste
             database.child("friends").child(currentUid()!!).child(uid).child(CHILD_UID).setValue(uid)
             database.child("friends").child(uid).child(currentUid()!!).child(CHILD_UID).setValue(currentUid()!!)
 
-            database.child(NODE_FOLLOWING).child(currentUid()!!).child(uid).child(CHILD_UID).child(uid).removeValue()
-            database.child(NODE_FOLLOWING).child(uid).child(currentUid()!!).child(CHILD_UID).child(currentUid()!!).removeValue()
+            database.child(NODE_FOLLOWING).child(currentUid()!!).child(uid).removeValue()
+            database.child(NODE_FOLLOWING).child(uid).child(currentUid()!!).removeValue()
 
 
-            database.child(NODE_FOLLOWERS).child(uid).child(currentUid()!!).child(CHILD_UID).child(currentUid()!!).removeValue()
-            database.child(NODE_FOLLOWERS).child(currentUid()!!).child(uid).child(CHILD_UID).child(uid).removeValue()
+            database.child(NODE_FOLLOWERS).child(uid).child(currentUid()!!).removeValue()
+            database.child(NODE_FOLLOWERS).child(currentUid()!!).child(uid).removeValue()
 
 
         database.child(NODE_USERS).child(currentUid()!!).child(NODE_FOLLOWERS).child(uid).removeValue()

@@ -16,11 +16,9 @@ import android.view.ViewGroup
 import android.widget.AbsListView
 import android.widget.EditText
 import android.widget.TextView
-import androidx.appcompat.widget.AppCompatButton
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -156,8 +154,6 @@ class ChatsFragment : BottomSheetDialogFragment() {
         chatsRecyclerView.layoutManager = mLayoutManager
 
         // 1 запрос
-
-
         mRefMainList.addListenerForSingleValueEvent(Utils.ValueEventListenerAdapter { dataSnapshot ->
             mListItems = dataSnapshot.children.map { it.getChatModel() }
 
@@ -182,7 +178,7 @@ class ChatsFragment : BottomSheetDialogFragment() {
                         mRefMessages.child(model.id).limitToLast(1)
                             .addListenerForSingleValueEvent(Utils.ValueEventListenerAdapter { dataSnapshot2 ->
                                 tempList = dataSnapshot2.children.map { it.getMessageModel() }
-                                model.timeStamp = tempList[0].timeStamp
+                                model.timeStamp = tempList[0].fileStemp()
                                 model.messageList = tempList
 
 

@@ -1,18 +1,21 @@
 package org.robotics.blinkworld.Activity.Messages
 
+import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
+import android.view.animation.AnimationUtils
 import android.widget.AbsListView
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -45,6 +48,11 @@ class MessagesActivity : AppCompatActivity(),MessagesAdapter.Listener {
     private val mRefMainList = database.child(NODE_MAIN_LIST).child(currentUid()!!)
     private var mListItems = listOf<Message>()
     private lateinit var contact:String
+    lateinit var notificationManager: NotificationManager
+    lateinit var notificationChannel: NotificationChannel
+    private val channelId = "i.apps.notifications"
+    private val description = "Test notification"
+    var topic = ""
 
     private lateinit var mAdapter: MessagesAdapter
     private lateinit var mRecyclerView: RecyclerView
@@ -60,12 +68,14 @@ class MessagesActivity : AppCompatActivity(),MessagesAdapter.Listener {
 
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_messages)
         mSwipeRefreshLayout = refresh_chat
         initRecycleView()
         contact  = intent.getStringExtra("uid")!!
+
 
 
 
@@ -77,6 +87,24 @@ class MessagesActivity : AppCompatActivity(),MessagesAdapter.Listener {
             finish()
 
         }
+        val blink = AnimationUtils.loadAnimation(this, R.anim.blink)
+        val blink_second = AnimationUtils.loadAnimation(this, R.anim.blink_second)
+
+        star_1.startAnimation(blink)
+        star_2.startAnimation(blink_second)
+        star_3.startAnimation(blink)
+        star_4.startAnimation(blink_second)
+        star_5.startAnimation(blink)
+        star_6.startAnimation(blink_second)
+        star_7.startAnimation(blink)
+        star_8.startAnimation(blink_second)
+        star_9.startAnimation(blink)
+        star_10.startAnimation(blink_second)
+        star_11.startAnimation(blink)
+        star_12.startAnimation(blink_second)
+        star_13.startAnimation(blink)
+        star_14.startAnimation(blink_second)
+        star_15.startAnimation(blink)
 
 
 
@@ -110,15 +138,14 @@ class MessagesActivity : AppCompatActivity(),MessagesAdapter.Listener {
 
 
 
-
         //Инициализация параметро "User"
         database.child(NODE_USERS).child(currentUid()!!).addListenerForSingleValueEvent(Utils.ValueEventListenerAdapter {
-
             mUser = it.getValue(User::class.java)!!
 
 
 
         })
+
 
 
         //Загрузка последнего сообщение для отоброжение в чате
@@ -149,6 +176,7 @@ class MessagesActivity : AppCompatActivity(),MessagesAdapter.Listener {
                         saveToMainList(contact, "chat")
                         chattext.setText("")
                         vibratePhone()
+
 
                     }
                 }
@@ -245,6 +273,7 @@ class MessagesActivity : AppCompatActivity(),MessagesAdapter.Listener {
                 super.onScrolled(recyclerView, dx, dy)
                 if (mIsScrolling && dy < 0 && mLayoutManager.findFirstVisibleItemPosition() <= 3) {
                     updateData()
+
                 }
             }
 
@@ -383,6 +412,10 @@ class MessagesActivity : AppCompatActivity(),MessagesAdapter.Listener {
 
     }
 
+    override fun notificstion(uid: String, text: String) {
+
+    }
+
 
     fun vibratePhone() {
         val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
@@ -393,53 +426,15 @@ class MessagesActivity : AppCompatActivity(),MessagesAdapter.Listener {
         }
     }
 
-    override fun notificstion(uid: String, text: String) {
+
+    companion object {
+        const val NOTIFICATION_ID = 101
+        const val CHANNEL_ID = "channel1"
 
     }
-
-
-
-
-
 
 
 }
 
 
 
-
-//Логика функции howChat()
-
-
-//                        if (tempList.isEmpty()){
-//                            newModel.read = true
-//                            newModel.lastmsg = "Chat is cleared"
-//                        } else {
-//                            newModel.timeStampUser = tempList[0].timeStamp.toString().asTime()
-//                            if(tempList[0].type == "posts"){
-//                                newModel.lastmsg = "Recorded message"
-//                            }
-//                            else {
-//                                if(tempList[0].text.length >=25){
-//                                    newModel.lastmsg = tempList[0].text.substring(0, Math.min(tempList[0].text.length, 25)) + " ..."
-//                                }
-//                                else{
-//                                    newModel.lastmsg = tempList[0].text
-//                                }
-//                            }
-//                        }
-//
-//                        if(tempList.isNotEmpty()){//вывод картирнки нового сообщения
-//                            newModel.from = tempList[0].from
-//                            //mAdapter.updateListItems(newModel)
-//                            if(newModel.from == currentUid()!!){
-//                                newModel.read = true
-//
-//                            }else{
-//                                newModel.read = tempList[0].read
-//
-//
-//
-//                            }
-//
-//                        }

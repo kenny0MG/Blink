@@ -168,7 +168,6 @@ private fun loadUser(userName: String? = null) {
                 val users = it.children.map {
                     it.getValue(User::class.java)!!
                 }
-
                 //что бы в поиски не высвечивался текущий аккаунт
 
                 if(users.isEmpty()){
@@ -177,9 +176,7 @@ private fun loadUser(userName: String? = null) {
                     mRecyclerView.visibility = View.GONE
 
                     notResultTestView.visibility = View.VISIBLE
-                    Log.d("hi", users.toString())
                 }else{
-                    Log.d("hi", users.toString())
                     mUser = users.first()
                     mUsers = users
                     mRecyclerView.adapter = mAdapter

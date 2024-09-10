@@ -10,7 +10,13 @@ import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.AppCompatButton
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
 import org.robotics.blinkworld.R
+import org.robotics.blinkworld.Utils.NODE_USERS
+import org.robotics.blinkworld.Utils.currentUid
+import org.robotics.blinkworld.Utils.database
 
 class LoginRegistrationActivity : AppCompatActivity() {
 
@@ -35,8 +41,9 @@ class LoginRegistrationActivity : AppCompatActivity() {
 
             override fun afterTextChanged(p0: Editable?) {
                if(p0!!.length >= 30){
-                   Toast.makeText(applicationContext , "Max 25 symbol" , Toast.LENGTH_SHORT).show()
+                   Toast.makeText(applicationContext , "Max 30 symbol" , Toast.LENGTH_SHORT).show()
                }
+
             }
 
         }
@@ -52,9 +59,24 @@ class LoginRegistrationActivity : AppCompatActivity() {
                 Toast.makeText(this , "Write name" , Toast.LENGTH_SHORT).show()
 
             }else{
-                val intent = Intent(this, RegistrationPhoneActivity::class.java)
-                intent.putExtra("username",nameTextView.text.toString())
-                startActivities(arrayOf(intent))
+                database.child(NODE_USERS).orderByChild("username").equalTo(nameTextView.text.toString()).addListenerForSingleValueEvent(object :
+                    ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        if (snapshot.getValue() != null){
+                            nameTextView?.error ="This name is already in use"
+                        }else{
+                            val intent = Intent(this@LoginRegistrationActivity, RegistrationPhoneActivity::class.java)
+                            intent.putExtra("username",nameTextView.text.toString())
+                            startActivities(arrayOf(intent))
+                        }
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.d("TAG", "onVerificationFailed: ${error.toString()}")
+                    }
+                }
+                )
+
             }
 
         }

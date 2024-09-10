@@ -14,46 +14,66 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
 
+
                 >
 
 
             </androidx.camera.view.PreviewView>
+    <FrameLayout
+        android:layout_width="250dp"
+        android:layout_height="80dp"
+        android:layout_marginBottom="30dp"
+        android:foreground="@drawable/camera_bottom_menu"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
-<!--    <TextView-->
-<!--        android:id="@+id/gallery_text_stories"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="Gallery"-->
-<!--        android:layout_marginLeft="33dp"-->
-<!--        android:layout_marginBottom="35dp"-->
-<!--        android:fontFamily="@font/alata"-->
-<!--        android:textColor="@color/white"-->
-<!--        android:textSize="23dp"-->
+    </FrameLayout>
+    <FrameLayout
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="30dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:translationZ="90dp"
+        android:background="@android:color/transparent"
+        app:layout_constraintStart_toStartOf="parent">
 
-<!--        android:textStyle="bold"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent" />-->
-            <com.iammert.library.cameravideobuttonlib.CameraVideoButton
-                android:id="@+id/button"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                app:cvb_recording_color="@color/yellow"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHeight_min="64dp"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
+        <ImageView
+            android:id="@+id/gallery_text_stories"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginLeft="35dp"
+            android:src="@drawable/icons_gallery"
+            android:layout_gravity="left|center"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
-            <ImageView
-                android:id="@+id/btnToggleCamera"
-                android:layout_width="57dp"
-                android:layout_height="57dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:layout_marginTop="4dp"
+        <com.iammert.library.cameravideobuttonlib.CameraVideoButton
+            android:id="@+id/button"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            app:cvb_recording_color="@color/yellow"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_min="64dp"
+            android:layout_gravity="center"
 
-                android:layout_marginRight="4dp"
-                android:src="@drawable/ic_rotate_foreground" />
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+        <ImageView
+            android:id="@+id/btnToggleCamera"
+            android:layout_width="57dp"
+            android:layout_height="57dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="4dp"
+            android:layout_gravity="center|right"
+            android:layout_marginRight="30dp"
+            android:src="@drawable/ic_rotate_foreground" />
+    </FrameLayout>
+
+
     <ImageView
         android:id="@+id/full_screan_close_stories"
         android:layout_width="50dp"

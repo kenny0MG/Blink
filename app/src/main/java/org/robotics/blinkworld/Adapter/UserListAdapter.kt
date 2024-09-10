@@ -1,5 +1,6 @@
 package org.robotics.blinkworld.Adapter
 
+import android.graphics.Color
 import android.graphics.drawable.AnimationDrawable
 import android.view.LayoutInflater
 import android.view.View
@@ -7,14 +8,13 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatButton
+import androidx.core.view.doOnNextLayout
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.android.synthetic.main.fragment_edit_profile_fragment.*
 import kotlinx.android.synthetic.main.friend_item.view.*
 import org.robotics.blinkworld.R
-import org.robotics.blinkworld.Utils.NODE_USERS
-import org.robotics.blinkworld.Utils.currentUid
-import org.robotics.blinkworld.Utils.database
-import org.robotics.blinkworld.Utils.loadUserPhoto
+import org.robotics.blinkworld.Utils.*
 import org.robotics.blinkworld.models.User
 
 
@@ -53,6 +53,7 @@ class UserListAdapter(private val listener: Listener) : RecyclerView.Adapter<Use
             with(holder) {
                 photo_friend!!.loadUserPhoto(dataSet[position].photo)
                 username_friend.text = dataSet[position].username
+
 
                 //подписка - отписка
 
@@ -99,6 +100,15 @@ class UserListAdapter(private val listener: Listener) : RecyclerView.Adapter<Use
                 }
 
 
+               database.child("friends").child(
+                    dataSet[position].uid)
+                    .addValueEventListener(Utils.ValueEventListenerAdapter {
+                        val tempList = it.children.map { it.getUserModel() }
+                        friends_size.text = tempList.size.toString()+ " friends"
+                    })
+
+
+
                 //val followers = mFollows[dataSet[position].uid] ?: false
                 add_button.setOnClickListener { listener.follow(dataSet[position].uid) }
 
@@ -132,6 +142,7 @@ class UserListAdapter(private val listener: Listener) : RecyclerView.Adapter<Use
                 val add_button: AppCompatButton = view.add_friend_button
                 val your_friend: TextView = view.your_friend_text_view
                 val its_you:TextView = view.its_you_text_view
+                var friends_size:TextView = view.friend_size
 
 
         }

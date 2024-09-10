@@ -31,12 +31,14 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.ContextCompat.startActivities
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.doOnNextLayout
 import com.google.android.gms.tasks.Continuation
 import com.google.android.gms.tasks.Task
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.firebase.storage.UploadTask
 import com.mapbox.maps.logD
 import com.shulz.galleryapp.data.GalleryItem
+import kotlinx.android.synthetic.main.fragment_edit_profile_fragment.*
 import org.robotics.blinkworld.Activity.RegistrationPhone.RegistrationPhoneActivity
 import org.robotics.blinkworld.Activity.Web.WebActivity
 import org.robotics.blinkworld.BottomFragmaent.Gallery.Fragment.ChooseDataBottomSheet
@@ -70,6 +72,11 @@ class EditProfileFragmentFragment : BottomSheetDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         myClipboard = requireActivity().getSystemService(CLIPBOARD_SERVICE) as ClipboardManager?;
+
+
+
+
+
 
 
 

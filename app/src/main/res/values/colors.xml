@@ -17,8 +17,12 @@
     <color name="purple">#9272ba</color>
     <color name="biruz">#a7d4d0</color>
 
-    <color name="messages_block_color">#1D1D1D</color>
+    <color name="messages_block_color">#1A1A1A</color>
     <color name="seriy">#4C4C4C</color>
     <color name="red">#ff0000</color>#FF69B4
     <color name="pink">#FF1493</color>
+    <color name="edit_send_message">#242424</color>
+
+    <color name="liloviy">#b3007d</color>
+    <color name="second_yellow">#ffff20</color>
 </resources>

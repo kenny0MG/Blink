@@ -7,6 +7,17 @@
     android:forceDarkAllowed="false"
     android:background="?android:selectableItemBackground">
 
+    <com.sanojpunchihewa.glowbutton.GlowButton
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        app:cornerRadius="12dp"
+        app:glowColor="@color/white"
+        app:buttonColor="@color/white"
+        app:unpressedGlowSize="9dp"
+        app:layout_constraintBottom_toBottomOf="@+id/photo_friend_item"
+        app:layout_constraintEnd_toEndOf="@+id/photo_friend_item"
+        app:layout_constraintStart_toStartOf="@+id/photo_friend_item"
+        app:layout_constraintTop_toTopOf="@+id/photo_friend_item" />
     <ImageView
         android:id="@+id/photo_friend_item"
         android:layout_width="55dp"
@@ -20,11 +31,12 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0" />
 
+
     <TextView
         android:id="@+id/username_friend_item"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="15dp"
+        android:layout_marginStart="20dp"
         android:fontFamily="@font/alata"
         android:text="svetlana"
         android:textColor="@color/white"
@@ -32,8 +44,23 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@+id/photo_friend_item"
         app:layout_constraintStart_toEndOf="@+id/photo_friend_item"
-        app:layout_constraintTop_toTopOf="@+id/photo_friend_item" />
+        app:layout_constraintTop_toTopOf="@+id/photo_friend_item"
+        app:layout_constraintVertical_bias="0.172" />
 
+    <TextView
+        android:id="@+id/friend_size"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:fontFamily="@font/alata"
+        android:text=""
+        android:textColor="@color/line"
+        android:textSize="13dp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/photo_friend_item"
+        app:layout_constraintStart_toEndOf="@+id/photo_friend_item"
+        app:layout_constraintTop_toTopOf="@+id/photo_friend_item"
+        app:layout_constraintVertical_bias="0.885" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/add_friend_button"

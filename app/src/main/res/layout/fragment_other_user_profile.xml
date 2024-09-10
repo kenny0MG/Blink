@@ -124,11 +124,12 @@
             app:layout_constraintTop_toTopOf="@+id/go_chat_other_user_button"
             app:layout_constraintVertical_bias="0.0" />
 
+
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/add_friend_button_other_fragment"
             android:layout_width="80dp"
             android:layout_height="50dp"
-            android:layout_marginEnd="16dp"
+
             android:background="@drawable/gradient_list"
             android:fontFamily="@font/alata"
             android:text="+Add"
@@ -139,8 +140,10 @@
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@+id/go_chat_other_user_button"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/go_chat_other_user_button"
             app:layout_constraintTop_toTopOf="@+id/go_chat_other_user_button"
             app:layout_constraintVertical_bias="0.0" />
+
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/go_chat_other_user_button"

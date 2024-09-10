@@ -37,7 +37,7 @@ class UserProfileFragment : BottomSheetDialogFragment(),UserListAdapter.Listener
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         database.child(NODE_USERS).child(currentUid()!!)
-            .addListenerForSingleValueEvent(Utils.ValueEventListenerAdapter {
+            .addValueEventListener(Utils.ValueEventListenerAdapter {
                 mUser = it.getValue(User::class.java)!!
                 photo.loadUserPhoto(mUser.photo)
                 username.text = mUser.username

@@ -15,10 +15,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
-        app:cardBackgroundColor="@color/blue"
-        app:cardCornerRadius="7dp"
+        app:cardBackgroundColor="#B9A0ED"
+        app:cardCornerRadius="17dp"
         android:maxWidth="200dp"
         app:cardElevation="0dp"
+
+        android:minHeight="45dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -29,57 +31,68 @@
             android:fontFamily="@font/alata"
             android:padding="6dp"
             android:maxWidth="300dp"
-            android:textSize="15dp"
-
+            android:textSize="18dp"
+            android:layout_gravity="center"
             android:text="gvuuy"
             android:textColor="@color/white"
             />
     </androidx.cardview.widget.CardView>
 
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/block_date_chat"
+    <TextView
+        android:id="@+id/text_date_chat"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:maxWidth="200dp"
-        android:foreground="#50000000"
-        app:cardCornerRadius="7dp"
-        android:visibility="gone"
-        app:cardElevation="0dp"
+        android:fontFamily="@font/alata"
+        android:maxWidth="300dp"
+        android:padding="6dp"
+        android:textStyle="bold"
+
+        android:textColor="@color/line"
+        android:textSize="15dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
 
-        <TextView
-            android:id="@+id/text_date_chat"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/alata"
-            android:maxWidth="300dp"
-            android:padding="6dp"
-            android:text="12.04.5"
-            android:textColor="@color/black"
-            android:textSize="15dp" />
-    </androidx.cardview.widget.CardView>
-
-    <FrameLayout
+    <LinearLayout
         android:id="@+id/frameLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
+        <ImageView
+            android:id="@+id/avatar_chat_group"
+            android:layout_width="27dp"
+            android:layout_height="30dp"
+
+            android:layout_marginEnd="10dp"
+            android:layout_gravity="center|left"
+            android:visibility="gone"
+
+
+
+
+            android:layout_toStartOf="@+id/bloc_received_message"
+            android:background="@drawable/image_chat"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/bloc_received_message"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.941" />
 
         <androidx.cardview.widget.CardView
             android:id="@+id/bloc_received_message"
 
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginLeft="37dp"
+            android:minHeight="45dp"
             app:cardBackgroundColor="@color/messages_block_color"
-            app:cardCornerRadius="7dp"
+            app:cardCornerRadius="17dp"
+
             app:cardElevation="0dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -88,32 +101,20 @@
                 android:id="@+id/chat_received_message"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:fontFamily="@font/alata"
                 android:maxWidth="200dp"
                 android:padding="6dp"
+
                 android:text="ofiojerdffiejrngi"
                 android:textColor="@color/white"
-                android:textSize="15dp" />
+                android:textSize="18dp" />
         </androidx.cardview.widget.CardView>
 
 
-        <ImageView
-            android:id="@+id/avatar_chat_group"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_gravity="start|center"
-            android:background="@drawable/image_chat"
 
 
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/bloc_received_message"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.941" />
-
-
-    </FrameLayout>
+    </LinearLayout>
     <LinearLayout
         android:id="@+id/bloc_user_image_message"
         android:layout_width="wrap_content"
@@ -142,7 +143,7 @@
             android:layout_gravity="end"
             app:strokeWidth="3dp"
             app:strokeColor="@color/line"
-            app:cardCornerRadius="9dp"
+            app:cardCornerRadius="12dp"
             android:layout_marginLeft="7dp"
             app:cardElevation="16dp"
 
@@ -212,9 +213,9 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:layout_marginRight="7dp"
-            app:cardCornerRadius="9dp"
+            app:cardCornerRadius="12dp"
             app:cardElevation="4dp"
-            app:strokeWidth="3dp"
+            app:strokeWidth="1dp"
             app:strokeColor="@color/line"
             app:layout_constraintEnd_toEndOf="parent">
 

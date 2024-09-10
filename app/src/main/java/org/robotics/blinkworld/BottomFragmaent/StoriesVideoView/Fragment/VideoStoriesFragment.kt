@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DecodeFormat
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.bitmap.VideoBitmapDecoder
 import com.google.android.exoplayer2.ExoPlayer
@@ -76,6 +77,9 @@ class VideoStoriesFragment(private val image:String,private val uid:String) : Bo
 
 
        imageTh.loadUserPhoto(image)
+        Glide.with(this).load(image)
+            .centerCrop()
+            .into(imageTh)
 
 
 

@@ -12,13 +12,22 @@
     <com.mapbox.maps.MapView
         android:id="@+id/mapView"
         android:layout_width="0dp"
+
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-
         app:layout_constraintTop_toTopOf="parent">
 
+        <FrameLayout
+            android:id="@+id/white_main_top"
+            android:layout_width="match_parent"
+            android:layout_height="170dp"
+            android:background="@drawable/main_white_top"
+            app:layout_constraintTop_toTopOf="parent"
+            android:translationZ="2dp"
+
+            />
         <TextView
             android:id="@+id/textView_GPS_location"
             android:layout_width="wrap_content"
@@ -27,7 +36,7 @@
             android:layout_gravity="start"
             android:layout_marginLeft="30dp"
             android:layout_marginTop="10dp"
-
+            android:translationZ="3dp"
 
             android:fontFamily="@font/alata"
             android:text="Your location:"
@@ -43,6 +52,8 @@
             android:layout_gravity="start"
             android:layout_marginLeft="30dp"
             android:layout_marginTop="20dp"
+            android:translationZ="3dp"
+            android:maxWidth="300dp"
 
             android:fontFamily="@font/alata"
             android:text=""
@@ -56,6 +67,8 @@
             android:layout_height="45dp"
             android:layout_gravity="right"
             android:layout_marginTop="30dp"
+            android:translationZ="3dp"
+
             android:layout_marginRight="8dp"
             android:background="@drawable/main_button_bacground"
             android:backgroundTint="@color/black"
@@ -67,6 +80,8 @@
             android:layout_width="45dp"
             android:layout_height="45dp"
             android:layout_gravity="right"
+            android:translationZ="3dp"
+
             android:layout_marginTop="80dp"
             android:layout_marginRight="8dp"
             android:background="@drawable/main_button_bacground"
@@ -146,8 +161,6 @@
         android:fontFamily="@font/alata"
         android:gravity="center"
         android:minWidth="30dp"
-        android:padding="3dp"
-        android:text=" "
         android:textColor="@color/black"
         android:textSize="14dp"
         android:textStyle="bold"
@@ -158,21 +171,22 @@
 
     <TextView
         android:id="@+id/circle_new_user_main"
-        android:layout_width="17dp"
-        android:layout_height="17dp"
+        android:layout_width="13dp"
+        android:layout_height="13dp"
         android:background="@drawable/new_user_application"
         android:fontFamily="@font/alata"
         android:gravity="center"
         android:minWidth="30dp"
         android:padding="3dp"
         android:text=" "
-        android:visibility="gone"
         android:textColor="@color/black"
         android:textSize="14dp"
         android:textStyle="bold"
-        android:layout_marginTop="105dp"
+        android:layout_marginTop="110dp"
         android:layout_marginRight="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

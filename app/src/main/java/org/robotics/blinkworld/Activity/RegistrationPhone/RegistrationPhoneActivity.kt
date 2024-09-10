@@ -29,6 +29,7 @@ class RegistrationPhoneActivity : AppCompatActivity() {
     private lateinit var number : String
     private lateinit var privacyPhone:TextView
     private lateinit var cpp:CountryCodePicker
+    var i = 0
 
 
 
@@ -62,6 +63,7 @@ class RegistrationPhoneActivity : AppCompatActivity() {
 
         //обработчик нажатий
         phoneContinue.setOnClickListener {
+
             number = phoneEditText.text.trim().toString()
             if (number.isNotEmpty()){
                 cpp.registerCarrierNumberEditText(phoneEditText)
@@ -76,7 +78,7 @@ class RegistrationPhoneActivity : AppCompatActivity() {
                     PhoneAuthProvider.verifyPhoneNumber(options)
 
             }else{
-                Toast.makeText(this , "Please Enter Number" , Toast.LENGTH_SHORT).show()
+                phoneEditText?.error = "Please Enter Number"
 
             }
         }

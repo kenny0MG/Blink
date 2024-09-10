@@ -158,7 +158,7 @@ class OTPVerificationActivity : AppCompatActivity() {
                         }
 
                         override fun onCancelled(error: DatabaseError) {
-                            TODO("Not yet implemented")
+                            Log.d("TAG", "onVerificationFailed: ${error.toString()}")
                         }
                     })
 

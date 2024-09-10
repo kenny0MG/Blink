@@ -2,21 +2,17 @@ package org.robotics.blinkworld.Activity
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Service
+import android.content.Context
 import android.content.Intent
-import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.graphics.Paint
-import android.graphics.PointF
 import android.location.Geocoder
 import android.location.Location
+import android.location.LocationManager
 import android.net.Uri
 import com.google.android.gms.location.*
-import com.google.android.gms.tasks.Task
 import android.os.*
 import android.util.Log
-import android.view.MotionEvent
-import android.view.ScaleGestureDetector
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.*
@@ -24,35 +20,25 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import com.google.android.gms.common.api.ResolvableApiException
-import com.google.android.gms.location.*
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.CameraPosition
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.ServerValue
 import com.google.firebase.database.ValueEventListener
-import com.mapbox.android.gestures.MoveGestureDetector
+import com.mapbox.geojson.Point
 import com.mapbox.geojson.Point.fromLngLat
 import com.mapbox.maps.*
-import com.mapbox.maps.extension.style.expressions.dsl.generated.zoom
+import com.mapbox.maps.plugin.animation.CameraAnimatorChangeListener
 import com.mapbox.maps.plugin.animation.CameraAnimatorOptions.Companion.cameraAnimatorOptions
 import com.mapbox.maps.plugin.animation.camera
 import com.mapbox.maps.plugin.attribution.attribution
 import com.mapbox.maps.plugin.compass.compass
-import com.mapbox.maps.plugin.gestures.OnMoveListener
-import com.mapbox.maps.plugin.gestures.addOnMapClickListener
-import com.mapbox.maps.plugin.gestures.addOnMoveListener
 import com.mapbox.maps.plugin.logo.logo
 import com.mapbox.maps.plugin.scalebar.scalebar
 import com.mapbox.maps.viewannotation.viewAnnotationOptions
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import org.robotics.blinkworld.Activity.AboutBlinkBlink.AboutBlinkBlinkActivity
+import org.robotics.blinkworld.Activity.NoPremissionActivity.DisabledGPSActivity
 import org.robotics.blinkworld.Activity.NoPremissionActivity.NoGpsPremissionActivity
-import org.robotics.blinkworld.Activity.RegistrationPhone.LoginRegistrationActivity
 import org.robotics.blinkworld.BottomFragmaent.AddFriendsFragment.Fragment.AddFriendsFragment
 import org.robotics.blinkworld.BottomFragmaent.EditProfile.Fragment.EditProfileFragmentFragment
 import org.robotics.blinkworld.BottomFragmaent.Messages.Fragment.ChatsFragment
@@ -62,21 +48,20 @@ import org.robotics.blinkworld.BottomFragmaent.UserProfile.Fragment.UserProfileF
 import org.robotics.blinkworld.R
 import org.robotics.blinkworld.Utils.*
 import org.robotics.blinkworld.databinding.ViewMarkerBinding
+import org.robotics.blinkworld.location.LocationService
 import org.robotics.blinkworld.models.Chat
-import org.robotics.blinkworld.models.Message
 import org.robotics.blinkworld.models.MyMarker
 import org.robotics.blinkworld.models.User
-import java.text.SimpleDateFormat
+import java.lang.Runnable
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
 import java.util.*
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(){
 
 
     var mapView: MapView? = null
@@ -84,12 +69,17 @@ class MainActivity : AppCompatActivity() {
     private var fusedLocationClient: FusedLocationProviderClient? = null
     private var lastLocation: Location? = null
     private lateinit var mUser: User
+    private lateinit var tempList: List<User>
     lateinit var settingsClient: SettingsClient
-
+    var gpsStatus: Boolean = false
     lateinit var locationRequest: LocationRequest
-
+    var a = 0
+    var b = 0
     lateinit var locationCallback: LocationCallback
+    var userLocationChange = 0
+    private lateinit var viewAnnotation:View
 
+    private lateinit var viewAnnotationGroup:View
 
     private lateinit var point: com.mapbox.geojson.Point
     private val markerList = mutableListOf<MyMarker>()
@@ -99,6 +89,9 @@ class MainActivity : AppCompatActivity() {
 
     private var startX: Float = 0f
     private var startY: Float = 0f
+    var i = 0
+    var annotationType = 0
+    private lateinit var onCameraZoomChangeListener: CameraAnimatorChangeListener<Double>
 
 
     //val viewAnnotationManager = mapView!!.viewAnnotationManager
@@ -112,6 +105,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var settingsImage: ImageView
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -129,7 +123,47 @@ class MainActivity : AppCompatActivity() {
 
 
 
+//        onCameraZoomChangeListener = CameraAnimatorChangeListener {
+//            if(markerList.isNotEmpty()){
+//                addGroupAnnotationOnScale(markerList)
+//                Log.d("TAG_TEST", "onCreate: call")
+//            }
+//
+//
+////            Log.d(
+////                "TAG_TEST_2",
+////                "onCreate 1: ${distanceBetweenPoints(markerList[0].point, markerList[1].point)} "
+////            )
+////            Log.d(
+////                "TAG_TEST_2",
+////                "onCreate 2: ${distanceBetweenPoints(markerList[0].point, markerList[2].point)} "
+////            )
+//        }
+//
+//        mapView!!.camera.addCameraZoomChangeListener(onCameraZoomChangeListener)
 
+
+
+
+        val mainHandler = Handler(Looper.getMainLooper())
+
+            mainHandler.post(object : Runnable {
+                override fun run() {
+                    if(i ==0) {
+                        locationEnabled()
+                        if (!gpsStatus) {
+                            i = 1
+                            val intent = Intent(applicationContext, DisabledGPSActivity::class.java)
+                            startActivities(arrayOf(intent))
+                        }
+                    }
+
+                    mainHandler.postDelayed(this, 2000)
+                }
+            })
+
+
+        //Анимация камеры
         mapView!!.getMapboxMap().loadStyleUri(
             "mapbox://styles/blinkboss/clekjhq5t006o01qgxmwozfee"
 
@@ -137,7 +171,7 @@ class MainActivity : AppCompatActivity() {
             mapView!!.camera.apply {
                 val zoom = createZoomAnimator(
                     cameraAnimatorOptions(14.0) {
-                        startValue(3.0)
+                        startValue(1.0)
                     }
                 ) {
                     duration = 4000
@@ -148,14 +182,14 @@ class MainActivity : AppCompatActivity() {
 
 
             }
-
-
         }
+
+
+
 
 
         //Подчеркивание главного текста GPS
         gpsMainText.paintFlags = gpsMainText.paintFlags or Paint.UNDERLINE_TEXT_FLAG
-
 
 
 
@@ -204,12 +238,15 @@ class MainActivity : AppCompatActivity() {
                     mapView!!.getMapboxMap().setCamera(
 
                         CameraOptions.Builder()
-                            .zoom(15.0).center(fromLngLat(mUser.longitude, mUser.latitude))
+                            .zoom(16.0).center(fromLngLat(mUser.longitude, mUser.latitude))
                             .build(),
-                        )
+                    )
 
                 })
             vibratePhone()
+
+
+
         }
 
 
@@ -219,6 +256,8 @@ class MainActivity : AppCompatActivity() {
             fragmentManager.let {
                 bottomfrSheets.show(it, "")
             }
+
+
         }
 
         profileButton.setOnClickListener {
@@ -230,62 +269,51 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-
         //Проверка зарегестрирован пользователь или н
         //основные функции
         if(auth.currentUser == null){
             finish()
-            val intent = Intent(this, LoginRegistrationActivity::class.java)
+            val intent = Intent(this, AboutBlinkBlinkActivity::class.java)
             startActivities(arrayOf(intent))
         }else{
             if (!checkPermissions()) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     requestPermissions()
+                    finish()
                     val intent = Intent(this, NoGpsPremissionActivity::class.java)
                     startActivities(arrayOf(intent))
-                    finish()
                 }
             }
             else {
+
+
+                App.instance.locationLiveData.observe(this@MainActivity) {
+                    Log.d("TAG_TEST_LOCATION", "onCreate: $it")
+                }
+                Intent(applicationContext, LocationService::class.java).apply {
+                    action = LocationService.ACTION_START
+
+                    startService(this)
+                }
+
                 CoroutineScope(Dispatchers.Main).launch {
                     onMapReady()
-                    showNotificationUser()
-                    val mainHandler = Handler(Looper.getMainLooper())
-
-                    mainHandler.post(object : Runnable {
-                        override fun run() {
-
-                            showNotification()
-                            mainHandler.postDelayed(this, 1000)
-                        }
-                    })
-                    mainHandler.post(object : Runnable {
-                        override fun run() {
-                            createLocationRequest()
-
-                            createLocationCallBack()
-
-                            mainHandler.postDelayed(this, 1000)
-                        }
-                    })
-                    mainHandler.post(object : Runnable {
-                        override fun run() {
-
-                            userLocation()
-                            mainHandler.postDelayed(this, 100000)
-                        }
-                    })
                     loadUser()
+                    showNotificationUser()
+                    showNotification()
+                    userLocation()
+
 
 
 
                 }
+
+        }
+
+
         }
 
 
-
-
-        }
 
         //Стиль карты
 
@@ -312,12 +340,6 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    override fun onResume() {
-        super.onResume()
-
-
-    }
-
 
 
     override fun onStart() {
@@ -342,7 +364,11 @@ class MainActivity : AppCompatActivity() {
 
 
 
-
+//Проверка включен GPS или нет
+private fun locationEnabled() {
+    val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+    gpsStatus = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+}
 
 
 
@@ -405,9 +431,10 @@ class MainActivity : AppCompatActivity() {
                 }
                 grantResults[0] == PackageManager.PERMISSION_GRANTED -> {
                     // Permission granted.
-                    createLocationRequest()
-
-                    createLocationCallBack()
+                    Intent(applicationContext, LocationService::class.java).apply {
+                        action = LocationService.ACTION_START
+                        startService(this)
+                    }
                 }
                 else -> {
                     showSnackbar("Permission was denied", "Settings",
@@ -431,278 +458,166 @@ class MainActivity : AppCompatActivity() {
 
 
 
+    private fun onMapReady() {
 
+        database.child(NODE_USERS).child(currentUid()!!)
+            .addValueEventListener(Utils.ValueEventListenerAdapter { dataSnapshot ->
+                mUser = dataSnapshot.getValue(User::class.java)!!
+                point = fromLngLat(mUser.longitude, mUser.latitude )
+                initMarkerList(mUser.uid,
+                    mUser.username,
+                    mUser.photo!!,
+                    mUser.state,
+                    mUser.Time,
+                    point,
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    @SuppressLint("MissingPermission")
-    fun createLocationRequest() {
-
-        locationRequest = LocationRequest().apply {
-            interval = 5000
-            fastestInterval = 1000
-            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        }
-
-        val builder = LocationSettingsRequest.Builder()
-            .addLocationRequest(locationRequest)
-
-        settingsClient = LocationServices.getSettingsClient(this)
-
-        val task: Task<LocationSettingsResponse> = settingsClient.checkLocationSettings(builder.build())
-
-        task.addOnSuccessListener {
-            fusedLocationClient!!.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
-
-        }
-
-        task.addOnFailureListener {exception ->
-            if (exception is ResolvableApiException) {
-                // Location settings are not satisfied, but this can be fixed
-                // by showing the user a dialog.
-                try {
-                    // Show the dialog by calling startResolutionForResult(),
-                    // and check the result in onActivityResult().
-                    //exception.startResolutionForResult(this@MainActivity,
-                    //REQUEST_CHECK_SETTINGS)
-                } catch (sendEx: IntentSender.SendIntentException) {
-                    // Ignore the error.
+                    )
+                markerList.forEach {
+                    addViewAnnotation(it)
                 }
-            }
-        }
+
+                if(userLocationChange ==0){
+                    userLocationChange = 1
+                    mapView!!.getMapboxMap().setCamera(
+
+                        CameraOptions.Builder()
+                            .zoom(15.0).center(fromLngLat(mUser.longitude, mUser.latitude))
+                            .build(),
+
+
+
+
+                        )
+
+                }
+
+            })
+
+
+
+
+
     }
 
-    fun createLocationCallBack() {
 
-        locationCallback = object : LocationCallback() {
-            override fun onLocationResult(locationResult: LocationResult) {
-                super.onLocationResult(locationResult)
-                val locationLatitude =(locationResult.lastLocation!!.latitude)
-                val locationLongitude = (locationResult.lastLocation!!.longitude)
-                val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm:ss")
-                val currentDate = sdf.format(Date()).toString()
-                database.child(NODE_USERS).child(currentUid()!!)
-                    .addListenerForSingleValueEvent(Utils.ValueEventListenerAdapter {
-                        mUser = it.getValue(User::class.java)!!
-                        if((locationLatitude.toString()).take(6) != (mUser.latitude.toString()).take(6) && (locationResult.lastLocation!!.longitude.toString()).take(6) != (mUser.longitude.toString()).take(6)){
-                            database.child(NODE_USERS).child(currentUid()!!).child("Time").setValue(currentDate)
+
+
+//Запрос на координаты пользователя
+
+
+
+    //Перебор друзей пользователя для их вывода
+
+    private fun loadUser() {
+        val rootRef = database.child("friends").child(currentUid()!!)
+        rootRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (singleSnapshot in snapshot.getChildren()) {
+                    val followers =
+                        singleSnapshot.getValue(User::class.java)!!
+                    database.child(NODE_USERS).child(followers.uid).addValueEventListener(Utils.ValueEventListenerAdapter { dataSnapShot1 ->
+                        val coordinate = dataSnapShot1.getUserModel()
+                        point = fromLngLat(coordinate.longitude, coordinate.latitude )
+                        initMarkerList(coordinate.uid,
+                            coordinate.username,
+                            coordinate.photo!!,
+                            coordinate.state,
+                            coordinate.Time,
+                                    point,
+                        )
+                        markerList.forEach {
+                            addViewAnnotation(it)
                         }
-                        database.child(NODE_USERS).child(currentUid()!!).child(CHILD_LATITUDE).setValue(locationLatitude)
-                        database.child(NODE_USERS).child(currentUid()!!).child(CHILD_LONGITUDE).setValue(locationLongitude)
+
+
 
 
                     })
 
 
-
+                }
 
 
             }
-        }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.d("OtherProfileFragment",error.message)
+                gpsMainText.text = "No internet connection((("
+            }
+
+
+        })
 
     }
 
 
 
+    private fun initMarkerList(uid:String,name:String,image:String,state:String,time:String,point: Point) {
 
-//
-
-    companion object {
-        private val TAG = "LocationProvider"
-        val REQUEST_PERMISSIONS_REQUEST_CODE = 34
-    }
-
+        database.child("friends").child(currentUid()!!)
+            .addValueEventListener(Utils.ValueEventListenerAdapter { dataSnapshot ->
+                tempList = dataSnapshot.children.map { dataSnapshot.getUserModel() }
+                //Log.d("classA", tempList.size.toString())
 
 
-    private fun onMapReady() {
-        database.child(NODE_USERS).child(currentUid()!!)
-            .addListenerForSingleValueEvent(Utils.ValueEventListenerAdapter {
-                mUser = it.getValue(User::class.java)!!
-                point = fromLngLat(mUser.longitude, mUser.latitude )
-                initMarkerList(mUser.uid,point,
-                    mUser.username,
-                    mUser.photo!!,
-                    mUser.state,
-                    mUser.Time
 
-                )
-                markerList.forEach {
-                    addViewAnnotation(it)
-                    Log.d("MAP",markerList.toString())
+                if (b < (tempList.size+1)) {
+                    b++
+                    markerList.add(
+                        MyMarker(
+                            uid,
+                            name,
+                            image,
+                            point,
+                            state,
+                            time
+
+                        )
+                    )
                 }
 
-        mapView!!.getMapboxMap().setCamera(
 
-            CameraOptions.Builder()
-                .zoom(15.0).center(fromLngLat(mUser.longitude, mUser.latitude))
-                .build(),
-
-
-
-
-        )
-
-            })
-
-
-
-
-
-    }
-
-
-
-
-
-
-//Перебор друзей пользователя для их вывода
-
-
-    private fun loadUser() {
-            val rootRef = database.child("friends").child(currentUid()!!)
-            rootRef.addValueEventListener(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    for (singleSnapshot in snapshot.getChildren()) {
-                        val followers =
-                            singleSnapshot.getValue(User::class.java)!!
-                        database.child(NODE_USERS).child(followers.uid).addValueEventListener(Utils.ValueEventListenerAdapter { dataSnapShot1 ->
-                            val coordinate = dataSnapShot1.getUserModel()
-                            point = fromLngLat(coordinate.longitude, coordinate.latitude )
-                            initMarkerList(coordinate.uid,point,
-                                coordinate.username,
-                                coordinate.photo!!,
-                                coordinate.state,
-                                coordinate.Time
-
-                            )
-                            markerList.forEach {
-                                addViewAnnotation(it)
-                            }
-
-                        })
-
-
-                        }
-
-
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    Log.d("OtherProfileFragment",error.message)
-                    gpsMainText.text = "No internet connection((("
-                }
 
 
             })
-
-        }
-    private fun initMarkerList(uid:String,point:com.mapbox.geojson.Point,name:String,image:String,state:String,time:String) {
-        markerList.clear()
-        markerList.add(
-            MyMarker(
-                uid,
-                name,
-                image,
-               point,
-                state,
-                time
-
-            )
-        )
     }
+
+
+
+
+
+
+
 
 
 
     //Вывод друзей пользователя
 
+
+
+
+
     @SuppressLint("NewApi")
     private fun addViewAnnotation(myMarker: MyMarker) {
-        val viewAnnotation =
-            mapView!!.viewAnnotationManager.addViewAnnotation(resId = R.layout.view_marker,
-                options = viewAnnotationOptions {
-                    this.allowOverlap(true)
-                    geometry(myMarker.point)
-                    offsetX(10)
-                })
 
-        ViewMarkerBinding.bind(viewAnnotation).apply {
-           imageMarker.loadUserPhoto(myMarker.imageUrl)
-            imageMarker.clipToOutline = true
-            textStateMarker.text = myMarker.state
-            timeMarker.visibility = View.GONE
-            database.child(NODE_USERS).child(myMarker.uid)
-                .addListenerForSingleValueEvent(Utils.ValueEventListenerAdapter {
-                    mUser = it.getValue(User::class.java)!!
-                    if(mUser.Time.isNotEmpty()) {
+        database.child("friends").child(currentUid()!!)
+            .addValueEventListener(Utils.ValueEventListenerAdapter { dataSnapshot ->
+                tempList = dataSnapshot.children.map { dataSnapshot.getUserModel() }
+                Log.d("classA", tempList.size.toString())
 
-                        val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-                        val timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss")
-                        val date = LocalDate.parse(mUser.Time.take(10), dateFormatter)
-                        val time = LocalTime.parse(mUser.Time.takeLast(8), timeFormatter)
-                        val then = date.atTime(time)
-                        val now = LocalDateTime.now()
-                        val duration = Duration.between(then, now)
-                        val min = duration.toMinutes()
-                        val hours = duration.toHours()
-                        val days = duration.toDays()
-                        if (min >= 5) {
-                            timeMarker.visibility = View.VISIBLE
-                            if (min >= 5 && min <60){
-                                timeMarker.text = min.toString() + "m"
-                            } else if (min >= 60) {
-                                timeMarker.text = hours.toString() + "h"
-                            } else if (hours >= 24 && hours <25) {
-                                timeMarker.text = days.toString() + "d"
-                            } else if (days >= 7) {
-                                timeMarker.text = "1w"
-                            } else if (days >= 14) {
-                                timeMarker.text = "2w"
-                            } else if (days >= 21) {
-                                timeMarker.text = "3w"
-                            } else if (days >= 28) {
-                                timeMarker.text = "1M"
-                            } else if (days >= 56) {
-                                timeMarker.text = "1M+"
-                            }
-                            Log.d("Tag", hours.toString())
-                            }
+                    viewAnnotation =
+                        mapView!!.viewAnnotationManager.addViewAnnotation(resId = R.layout.view_marker,
+                            options = viewAnnotationOptions {
+                                this.allowOverlap(true)
+                                geometry(myMarker.point)
+                                offsetY(5)
+                                anchor(ViewAnnotationAnchor.BOTTOM)
+                                Log.d("classA", myMarker.point.toString())
+                                a++
 
-                    }else{
-                        timeMarker.visibility = View.GONE
-                    }
+                            })
+                //mapView!!.viewAnnotationManager.removeAllViewAnnotations()
+                //mapView!!.viewAnnotationManager.removeViewAnnotation(viewAnnotation)
 
 
 
@@ -711,69 +626,126 @@ class MainActivity : AppCompatActivity() {
 
 
 
-                })
 
+                ViewMarkerBinding.bind(viewAnnotation).apply {
 
+                    imageMarker.loadUserPhoto(myMarker.imageUrl)
+                    imageMarker.clipToOutline = true
+                    textStateMarker.text = myMarker.state
+                    timeMarker.visibility = View.GONE
+                    database.child(NODE_USERS).child(myMarker.uid)
+                        .addListenerForSingleValueEvent(Utils.ValueEventListenerAdapter {
+                            mUser = it.getValue(User::class.java)!!
+                            if(mUser.Time.isNotEmpty()) {
 
-//            if(myMarker.point == position){
-//                textStateMarker.text = "Ok"
-//            }
-//            position = myMarker.point
-            root.setOnClickListener {
-                vibratePhone()
+                                val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                                val timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss")
+                                val date = LocalDate.parse(mUser.Time.take(10), dateFormatter)
+                                val time = LocalTime.parse(mUser.Time.takeLast(8), timeFormatter)
+                                val then = date.atTime(time)
+                                val now = LocalDateTime.now()
+                                val duration = Duration.between(then, now)
+                                val min = duration.toMinutes()
+                                val hours = duration.toHours()
+                                val days = duration.toDays()
+                                if (min >= 5) {
+                                    timeMarker.visibility = View.VISIBLE
+                                    if (min >= 5 && min <60){
+                                        timeMarker.text = min.toString() + "m"
+                                    } else if (min >= 60) {
+                                        timeMarker.text = hours.toString() + "h"
+                                    } else if (hours >= 24 && hours <25) {
+                                        timeMarker.text = days.toString() + "d"
+                                    } else if (days >= 7) {
+                                        timeMarker.text = "1w"
+                                    } else if (days >= 14) {
+                                        timeMarker.text = "2w"
+                                    } else if (days >= 21) {
+                                        timeMarker.text = "3w"
+                                    } else if (days >= 28) {
+                                        timeMarker.text = "1M"
+                                    } else if (days >= 56) {
+                                        timeMarker.text = "1M+"
+                                    }
+                                    Log.d("Tag", hours.toString())
+                                }
 
-                    if(myMarker.uid == currentUid()!!){
-
-                        val bottomfrSheets = UserProfileFragment()
-                        val fragmentManager = supportFragmentManager
-                        fragmentManager.let {
-                            bottomfrSheets.show(it, "")
-                        }
-                    }else{
-                        mapView!!.getMapboxMap().setCamera(
-
-                            CameraOptions.Builder()
-                                .zoom(16.0).center(myMarker.point)
-                                .build(),
-
-
-
-                            )
-                        val geocoder = Geocoder(applicationContext, Locale.ENGLISH)
-                        val latitude = myMarker.point.latitude()
-                        val longitude = myMarker.point.longitude()
-                        val addresses = geocoder.getFromLocation(latitude, longitude, 1)
-                        Handler().postDelayed(Runnable {
-                            userLocation()
-                        }, 10000)
-                        if(addresses!!.isNotEmpty()){
-                            val address = addresses!!.first()
-                            textView_GPS_location.text = myMarker.name + " location"
-                            if(address.locality != null){
-                                gpsMainText.text = address.locality.toString()
-                                textView_GPS_location.visibility = View.VISIBLE
-                            }else if(address.subLocality != null){
-                                gpsMainText.text = address.subLocality.toString()
-                                textView_GPS_location.visibility = View.VISIBLE
                             }else{
-                                gpsMainText.text = address.countryName.toString()
-                                textView_GPS_location.visibility = View.VISIBLE
+                                timeMarker.visibility = View.GONE
                             }
 
 
-                        }
 
 
-                        val bottomfrSheets = OtherUserProfileFragment(myMarker.uid)
-                        val fragmentManager = supportFragmentManager
-                        fragmentManager.let {
-                            bottomfrSheets.show(it, "")
+
+
+
+
+                        })
+
+                    root.setOnClickListener {
+                        vibratePhone()
+
+                        if(myMarker.uid == currentUid()!!){
+
+                            val bottomfrSheets = UserProfileFragment()
+                            val fragmentManager = supportFragmentManager
+                            fragmentManager.let {
+                                bottomfrSheets.show(it, "")
+                            }
+                        }else{
+                            mapView!!.getMapboxMap().setCamera(
+
+                                CameraOptions.Builder()
+                                    .zoom(16.0).center(myMarker.point)
+                                    .build(),
+
+
+
+                                )
+                            val geocoder = Geocoder(applicationContext, Locale.ENGLISH)
+                            val latitude = myMarker.point.latitude()
+                            val longitude = myMarker.point.longitude()
+                            val addresses = geocoder.getFromLocation(latitude, longitude, 1)
+                            Handler().postDelayed(Runnable {
+                                userLocation()
+                            }, 10000)
+                            if(addresses!!.isNotEmpty()){
+                                val address = addresses!!.first()
+                                textView_GPS_location.text = myMarker.name + " location"
+                                if(address.locality != null){
+                                    gpsMainText.text = address.locality.toString()
+                                    textView_GPS_location.visibility = View.VISIBLE
+                                }else if(address.subLocality != null){
+                                    gpsMainText.text = address.subLocality.toString()
+                                    textView_GPS_location.visibility = View.VISIBLE
+                                }else{
+                                    gpsMainText.text = address.countryName.toString()
+                                    textView_GPS_location.visibility = View.VISIBLE
+                                }
+
+                            }
+
+                            val bottomfrSheets = OtherUserProfileFragment(myMarker.uid)
+                            val fragmentManager = supportFragmentManager
+                            fragmentManager.let {
+                                bottomfrSheets.show(it, "")
+                            }
                         }
                     }
                 }
-            }
+            })
 
-        }
+
+        //mapView!!.viewAnnotationManager.removeViewAnnotation(viewAnnotation)
+
+
+
+    }
+
+
+
+
 
 
 
@@ -826,7 +798,7 @@ class MainActivity : AppCompatActivity() {
 
     //Вывод уведомлений о новых сообщениях
     private fun showNotification() {
-        database.child(NODE_MAIN_LIST).child(currentUid()!!).addListenerForSingleValueEvent(Utils.ValueEventListenerAdapter { dataSnapshot ->
+        database.child(NODE_MAIN_LIST).child(currentUid()!!).addValueEventListener(Utils.ValueEventListenerAdapter { dataSnapshot ->
             mListItems = dataSnapshot.children.map { it.getChatModel() }
 
                         // 3 запрос
@@ -844,10 +816,10 @@ class MainActivity : AppCompatActivity() {
                     } else {
                         text.visibility = View.VISIBLE
                         if(count >= 99){
-                            text.text = " "
+                            text.text = "100+"
                         }
                         else{
-                            text.text = " "
+                            text.text = count.toString()
                         }
 
 
@@ -891,6 +863,8 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+
+
     fun vibratePhone() {
         val vibrator = getSystemService(VIBRATOR_SERVICE) as Vibrator
         if (Build.VERSION.SDK_INT >= 26) {
@@ -900,6 +874,19 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
+
+    companion object {
+        private val TAG = "LocationProvider"
+        val REQUEST_PERMISSIONS_REQUEST_CODE = 34
+
+
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        App.instance.locationLiveData.removeObservers(this)
+    }
 
 
 }

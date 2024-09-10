@@ -1,5 +1,8 @@
 package org.robotics.blinkworld.BottomFragmaent.OtherUserProfile.Fragment
 
+import android.animation.AnimatorListenerAdapter
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
 import android.content.Intent
 import android.graphics.Point
 import android.graphics.drawable.AnimationDrawable
@@ -15,10 +18,10 @@ import androidx.appcompat.widget.AppCompatButton
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.google.firebase.FirebaseError
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
+import kotlinx.android.synthetic.main.fragment_other_user_profile.*
 import org.robotics.blinkworld.Activity.Messages.MessagesActivity
 import org.robotics.blinkworld.Adapter.UserListAdapter
 import org.robotics.blinkworld.BottomFragmaent.UserProfile.Fragment.UserProfileFragment
@@ -56,6 +59,7 @@ class OtherUserProfileFragment(private val uid:String) : BottomSheetDialogFragme
 
             })
 
+
         //подписка
         addfriendButton.setOnClickListener {
 
@@ -66,7 +70,6 @@ class OtherUserProfileFragment(private val uid:String) : BottomSheetDialogFragme
 
             addfriendButton.visibility = View.GONE
         }
-
 
 
         //Переход в чат

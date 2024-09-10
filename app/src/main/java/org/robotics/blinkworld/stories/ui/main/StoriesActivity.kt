@@ -147,77 +147,77 @@ class StoriesActivity : AppCompatActivity() {
             }
         }
 
+
         viewBinding.btnToggleCamera.setOnClickListener {
             toggleCamera()
         }
-//        viewBinding.galleryTextStories.setOnClickListener {
-//            if (setupPermissions()) {
-//
-//
-//
-//                val data = mutableListOf<GalleryItem>().apply {
-//                    addAll(fetchImages())
-//                    addAll(fetchVideos())
-//                    sortByDescending { it.dateCreated }
-//                }
-//
-//
-//                ChooseDataBottomSheet(data) {
-//
-//
-//                    if (it.isVideo && it.videoDuration > 1 * 60 * 1000L) {
-//                        Toast.makeText(this, "Видео дольше 1 минуты", Toast.LENGTH_SHORT).show()
-//                        return@ChooseDataBottomSheet
-//                    }
-//                    if(!it.isVideo){
-//                        startActivity(
-//                            Intent(
-//                                this@StoriesActivity,
-//                                PreviewPhotoActivity::class.java
-//                            ).apply {
-//
-//                                val contact  = intent.getStringExtra("uid")
-//                                val photo  = intent.getStringExtra("photo")
-//                                val username =  intent.getStringExtra("username")
-//                                putExtra("username", username)
-//                                putExtra("uid", contact)
-//                                putExtra("photo", photo)
-//
-//                                val file = File(it.url).absolutePath
-//                                val fileUri = Uri.fromFile(File(file))
-//                                putExtra("DATA", fileUri.toString())
-//
-//
-//                            })
-//                    }
-//                    else{
-//                        startActivity(
-//                            Intent(
-//                                this@StoriesActivity,
-//                                PreviewVideoActivity::class.java
-//                            ).apply {
-//
-//                                val contact  = intent.getStringExtra("uid")
-//                                val photo  = intent.getStringExtra("photo")
-//                                val username =  intent.getStringExtra("username")
-//                                putExtra("username", username)
-//                                putExtra("uid", contact)
-//                                val file = File(it.url).absolutePath
-//                                val fileUri = Uri.fromFile(File(file))
-//                                putExtra("DATA", fileUri.toString())
-//
-//
-//                            })
-//                    }
-//
-//
-//
-//                }.show(supportFragmentManager, "ChooseDataBottomSheet")
-//
-//            } else {
-//                Toast.makeText(this, "Разрешите доступ к медиа", Toast.LENGTH_LONG).show()
-//            }
-//        }
+        viewBinding.galleryTextStories.setOnClickListener {
+            if (setupPermissions()) {
+
+
+
+
+                val data = mutableListOf<GalleryItem>().apply {
+                    addAll(fetchImages())
+                    addAll(fetchVideos())
+
+                    sortByDescending { it.dateCreated }
+                }
+
+                ChooseDataBottomSheet(data) {
+
+
+                    if (it.isVideo && it.videoDuration > 1 * 60 * 1000L) {
+                        Toast.makeText(this, "Видео дольше 1 минуты", Toast.LENGTH_SHORT).show()
+                        return@ChooseDataBottomSheet
+                    }
+                    if(!it.isVideo){
+                        startActivity(
+                            Intent(
+                                this@StoriesActivity,
+                                PreviewPhotoActivity::class.java
+                            ).apply {
+
+                                val contact  = intent.getStringExtra("uid")
+                                val photo  = intent.getStringExtra("photo")
+                                val username =  intent.getStringExtra("username")
+                                putExtra("username", username)
+                                putExtra("uid", contact)
+                                putExtra("photo", photo)
+
+                                val file =it.url
+                                putExtra("DATA", file.toString())
+
+
+                            })
+                    }
+                    else{
+                        startActivity(
+                            Intent(
+                                this@StoriesActivity,
+                                PreviewVideoActivity::class.java
+                            ).apply {
+
+                                val contact  = intent.getStringExtra("uid")
+                                val photo  = intent.getStringExtra("photo")
+                                val username =  intent.getStringExtra("username")
+                                putExtra("username", username)
+                                putExtra("uid", contact)
+                                val file =it.url
+                                putExtra("DATA", file.toString())
+
+
+                            })
+                    }
+
+
+
+                }.show(supportFragmentManager, "ChooseDataBottomSheet")
+
+            } else {
+                Toast.makeText(this, "Разрешите доступ к медиа", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     private fun takePhoto() {
@@ -266,6 +266,7 @@ class StoriesActivity : AppCompatActivity() {
         val videoCapture = videoCapture ?: return
 
         viewBinding.btnToggleCamera.isVisible = false
+        viewBinding.galleryTextStories.isVisible = false
 
         val currentRecording = recording
         if (null != currentRecording) {
@@ -300,9 +301,11 @@ class StoriesActivity : AppCompatActivity() {
                 when (recordEvent) {
                     is VideoRecordEvent.Start -> {
                         viewBinding.btnToggleCamera.isVisible = false
+                        viewBinding.galleryTextStories.isVisible = false
                     }
                     is VideoRecordEvent.Finalize -> {
                         viewBinding.btnToggleCamera.isVisible = true
+                        viewBinding.galleryTextStories.isVisible = true
                         if (!recordEvent.hasError()) {
                             startActivity(
                                 Intent(

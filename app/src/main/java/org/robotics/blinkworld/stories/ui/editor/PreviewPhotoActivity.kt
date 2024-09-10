@@ -42,9 +42,9 @@ class PreviewPhotoActivity : AppCompatActivity(), OnPhotoEditorListener, View.On
         binding = ActivityPreviewBinding.inflate(layoutInflater)
 
         initViews()
-        binding.fullScreanCloseStoriesPhoto.setOnClickListener {
-            finish()
-        }
+//        binding.fullScreanCloseStoriesPhoto.setOnClickListener {
+//            finish()
+//        }
 
         imagePath = intent.getStringExtra("DATA") ?: ""
         if (imagePath.isBlank()) finish()
@@ -52,12 +52,6 @@ class PreviewPhotoActivity : AppCompatActivity(), OnPhotoEditorListener, View.On
         Glide.with(this).load(imagePath).into(binding.ivImage.source)
 
         setContentView(binding.root)
-        val animationDrawable = binding.imgDone.background as AnimationDrawable
-        animationDrawable.apply {
-            setEnterFadeDuration(15000)
-            setExitFadeDuration(15000)
-            start()
-        }
         val contact  = intent.getStringExtra("uid")
         val photo  = intent.getStringExtra("photo")
 
@@ -65,37 +59,37 @@ class PreviewPhotoActivity : AppCompatActivity(), OnPhotoEditorListener, View.On
     }
 
     private fun initViews() {
-        mPhotoEditor = PhotoEditor.Builder(this, binding.ivImage)
-            .setPinchTextScalable(true)
-            .setDeleteView(binding.imgDelete)
-            .build()
-
-        mPhotoEditor.setOnPhotoEditorListener(this)
-        binding.imgClose.setOnClickListener(this)
-        binding.imgDone.setOnClickListener(this)
-        binding.imgText.setOnClickListener(this)
+//        mPhotoEditor = PhotoEditor.Builder(this, binding.ivImage)
+//            .setPinchTextScalable(true)
+//            .setDeleteView(binding.imgDelete)
+//            .build()
+//
+//        mPhotoEditor.setOnPhotoEditorListener(this)
+//        binding.imgClose.setOnClickListener(this)
+//        binding.imgDone.setOnClickListener(this)
+//        binding.imgText.setOnClickListener(this)
     }
 
     override fun onClick(v: View) {
         if(a !=0 ) {
             when (v.id) {
-                R.id.imgClose -> onBackPressed()
-                R.id.imgDone -> {
-                    a = 0
-                    saveImage()
-                }
-                R.id.imgText -> {
-                    val textEditorDialogFragment = show(this, 0)
-                    textEditorDialogFragment.setOnTextEditorListener(object :
-                        TextEditorDialogFragment.TextEditor {
-                        override fun onDone(inputText: String?, position: Int) {
-                            mPhotoEditor.addText(
-                                inputText,
-                                position
-                            )
-                        }
-                    })
-                }
+//                R.id.imgClose -> onBackPressed()
+//                R.id.imgDone -> {
+//                    a = 0
+//                    saveImage()
+//                }
+//                R.id.imgText -> {
+//                    val textEditorDialogFragment = show(this, 0)
+//                    textEditorDialogFragment.setOnTextEditorListener(object :
+//                        TextEditorDialogFragment.TextEditor {
+//                        override fun onDone(inputText: String?, position: Int) {
+//                            mPhotoEditor.addText(
+//                                inputText,
+//                                position
+//                            )
+//                        }
+//                    })
+//                }
             }
         }
     }
@@ -103,7 +97,11 @@ class PreviewPhotoActivity : AppCompatActivity(), OnPhotoEditorListener, View.On
     @SuppressLint("MissingPermission")
     private fun saveImage() {
         try {
-            val fileOrigin = File(imagePath)
+
+            val fileImage = File(cacheDir, "${System.currentTimeMillis()}.png")
+            if (fileImage.exists()) fileImage.delete()
+            fileImage.createNewFile()
+
 
             val saveSettings = SaveSettings.Builder()
                 .setCompressQuality(80)
@@ -112,15 +110,16 @@ class PreviewPhotoActivity : AppCompatActivity(), OnPhotoEditorListener, View.On
                 .setTransparencyEnabled(false)
                 .build()
 
-            mPhotoEditor.saveAsFile(fileOrigin.absolutePath, saveSettings, object :
+            mPhotoEditor.saveAsFile(fileImage.absolutePath, saveSettings, object :
                 PhotoEditor.OnSaveListener {
                 override fun onSuccess(imagePath: String) {
+                    this@PreviewPhotoActivity.imagePath = fileImage.absolutePath
                     uid  = intent.getStringExtra("uid").toString()
                     photo = intent.getStringExtra("photo").toString()
                     val username =  intent.getStringExtra("username")
                     val type = 1
                     binding.ivImage.source.setImageURI(Uri.fromFile(File(imagePath)))
-                    App.sendFileToFirestore(fileOrigin,uid,photo, username!!,type,this@PreviewPhotoActivity)
+                    App.sendFileToFirestore(fileImage,uid,photo, username!!,type,this@PreviewPhotoActivity)
 
 
                 }

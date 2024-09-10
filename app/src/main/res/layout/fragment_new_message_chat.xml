@@ -48,7 +48,7 @@
                 <EditText
                     android:id="@+id/filter_new_chats_text_edit_text"
                     android:layout_width="300dip"
-                    android:layout_height="45dip"
+                    android:layout_height="50dip"
                     android:layout_marginTop="10dp"
                     android:layout_weight="1"
                     android:background="@drawable/search_chat_textview"
@@ -58,7 +58,7 @@
                     android:inputType="text"
                     android:textColor="@color/white"
                     android:textColorHint="@color/white"
-                    android:textSize="18dp"
+                    android:textSize="19dp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"

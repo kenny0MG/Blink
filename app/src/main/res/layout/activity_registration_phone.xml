@@ -48,6 +48,7 @@
         android:layout_height="70dp"
         android:gravity="center"
         android:padding="16dp"
+        android:fontFamily="@font/alata"
         app:ccpDialog_backgroundColor="@color/black"
         app:ccpDialog_showNameCode="false"
         app:ccpDialog_textColor="@color/white"

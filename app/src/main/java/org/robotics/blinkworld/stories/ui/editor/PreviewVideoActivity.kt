@@ -62,9 +62,9 @@ class PreviewVideoActivity : AppCompatActivity(), OnPhotoEditorListener, View.On
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPreviewVideoBinding.inflate(layoutInflater)
-        binding.fullScreanCloseStoriesVideo.setOnClickListener {
-            finish()
-        }
+//        binding.fullScreanCloseStoriesVideo.setOnClickListener {
+//            finish()
+//        }
 
         videoPath = intent.getStringExtra("DATA") ?: ""
         if (videoPath.isBlank()) finish()
@@ -129,25 +129,25 @@ class PreviewVideoActivity : AppCompatActivity(), OnPhotoEditorListener, View.On
     override fun onClick(v: View) {
 
         if(a !=0) {
-            when (v.id) {
-                R.id.imgClose -> onBackPressed()
-                R.id.imgDone -> {
-                    a = 0
-                    saveImage()
-                }
-                R.id.imgText -> {
-                    val textEditorDialogFragment = show(this, 0)
-                    textEditorDialogFragment.setOnTextEditorListener(object :
-                        TextEditorDialogFragment.TextEditor {
-                        override fun onDone(inputText: String?, position: Int) {
-                            mPhotoEditor.addText(
-                                inputText,
-                                position
-                            )
-                        }
-                    })
-                }
-            }
+//            when (v.id) {
+//                R.id.imgClose -> onBackPressed()
+//                R.id.imgDone -> {
+//                    a = 0
+//                    saveImage()
+//                }
+//                R.id.imgText -> {
+//                    val textEditorDialogFragment = show(this, 0)
+//                    textEditorDialogFragment.setOnTextEditorListener(object :
+//                        TextEditorDialogFragment.TextEditor {
+//                        override fun onDone(inputText: String?, position: Int) {
+//                            mPhotoEditor.addText(
+//                                inputText,
+//                                position
+//                            )
+//                        }
+//                    })
+//                }
+            //}
         }
     }
 

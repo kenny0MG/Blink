@@ -38,6 +38,7 @@
             android:orientation="vertical">
 
             <androidx.cardview.widget.CardView
+                android:id="@+id/image_edit_profile_card"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 app:cardCornerRadius="50dp"
@@ -48,6 +49,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:src="@drawable/person" />
+
+
             </androidx.cardview.widget.CardView>
 
             <TextView
@@ -109,8 +112,8 @@
                     android:fontFamily="@font/alata"
                     android:gravity="end"
                     android:maxLength="25"
-                    android:text="vasya_pupkin23"
                     android:textColor="@color/white"
+                    android:textColorHint="@color/line"
                     android:textSize="16sp" />
 
                 <View
@@ -152,8 +155,8 @@
                     android:background="@android:color/transparent"
                     android:fontFamily="@font/alata"
                     android:gravity="end"
-                    android:maxLength="70"
                     android:hint="Add bio"
+                    android:maxLength="70"
                     android:textColor="@color/white"
                     android:textSize="16sp" />
 
@@ -186,6 +189,7 @@
 
 
     <LinearLayout
+        android:id="@+id/linearLayout3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
@@ -386,4 +390,5 @@
 
 
     </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

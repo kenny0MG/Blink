@@ -1,8 +1,11 @@
 package org.robotics.blinkworld.Utils
 
 import android.animation.ValueAnimator
+import android.annotation.SuppressLint
+import android.app.ActivityManager
 import android.app.Dialog
 import android.content.Context
+import android.content.IntentSender
 import android.graphics.Color
 import android.graphics.SweepGradient
 import android.graphics.drawable.Drawable
@@ -11,6 +14,7 @@ import android.graphics.drawable.LayerDrawable
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.RoundRectShape
 import android.os.Build
+import android.os.Looper
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.util.Log
@@ -21,12 +25,16 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.ColorInt
+import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.AppCompatButton
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.graphics.ColorUtils
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DecodeFormat
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.*
+import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -35,7 +43,16 @@ import org.robotics.blinkworld.R
 import org.robotics.blinkworld.models.Chat
 import org.robotics.blinkworld.models.Message
 import org.robotics.blinkworld.models.User
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.*
 
+private lateinit var locationRequest: LocationRequest
+private lateinit var mUser: User
+private lateinit var settingsClient: SettingsClient
+private var fusedLocationClient: FusedLocationProviderClient? = null
+private lateinit var locationCallback: LocationCallback
 class Utils {
     class ValueEventListenerAdapter(val handler: (DataSnapshot) -> Unit) : ValueEventListener {
         private val TAG = "ValueEventListenerAdapt"
@@ -241,6 +258,7 @@ fun DataSnapshot.getChatModel(): Chat =
     getValue(Chat::class.java) ?: Chat()
 
 
+
 fun setFollow(uid: String, follow: Boolean, onSuccess: () -> Unit) {
     val followsTask = database.child(NODE_USERS).child(currentUid()!!).child("following")
         .child(uid).setValue(follow)
@@ -260,7 +278,12 @@ fun setFollow(uid: String, follow: Boolean, onSuccess: () -> Unit) {
 
 }
 
-
+@RequiresApi(Build.VERSION_CODES.O)
+fun String.asTime(): String {
+    val sdf = SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
+    val currentDate = sdf.format(this.toLong()).toString()
+    return currentDate
+}
 
 class CustomDialog(context: Context) : Dialog(context, R.style.CustomDialogTheme) {
     init {
@@ -271,3 +294,8 @@ class CustomDialog(context: Context) : Dialog(context, R.style.CustomDialogTheme
         }
     }
 }
+
+
+
+
+
